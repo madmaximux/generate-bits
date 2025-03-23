@@ -36,9 +36,9 @@ jobs:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
         source_folder: 'lsio'
-        destination_repo: 'technorabilia/docker-bits'
+        destination_repo: 'madmaximux/docker-bits'
         destination_folder: 'lsio'
-        user_email: 'simon@technorabilia.com'
-        user_name: 'technorabilia'
+        user_email: '68623691+madmaximux@users.noreply.github.com'
+        user_name: 'madmaximux'
         destination_branch: 'main'
         commit_msg: 'Workflow update'

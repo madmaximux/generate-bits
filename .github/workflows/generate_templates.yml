@@ -36,8 +36,8 @@ jobs:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
         source_file: 'templates.json'
-        destination_repo: 'technorabilia/portainer-templates'
+        destination_repo: 'madmaximux/portainer-templates'
         destination_folder: 'lsio/templates'
-        user_email: 'simon@technorabilia.com'
-        user_name: 'technorabilia'
+        user_email: '68623691+madmaximux@users.noreply.github.com'
+        user_name: 'madmaximux'
         commit_message: 'Workflow update'

@@ -19,28 +19,35 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import common_standard as common
+import common
 
 from jinja2 import Environment, FileSystemLoader
 
 init_vars = common.get_initial_variables()
 project_list = common.get_project_list()
 
-env_standard = Environment(loader=FileSystemLoader(
-    "./templates/docker-bits/standard"), trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
-env_standard.globals.update(get_project_vars=common.get_project_vars)
+env = Environment(loader=FileSystemLoader(
+    "./templates/docker-bits/custom"), trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
+env.globals.update(get_project_vars=common.get_project_vars)
 
 out_basedir = "./output/docker-bits/lsio"
-out_basedir_standard = "{}/standard".format(out_basedir)
-out_basedirs_list = [out_basedir_standard]
+out_basedir_fullpath = "{}/custom".format(out_basedir)
+out_basedirs_list = [out_basedir_fullpath]
 for directory in out_basedirs_list:
     os.makedirs(directory, exist_ok=True)
 
-with open("{}/docker-env.cfg".format(out_basedir_standard), "w") as out_file:
-    out_file.write('''#BASEDIR=/volume1/docker
-#PUID=1024
-#PGID=100
-#TZ=Europe/Amsterdam
+with open("{}/docker-env.cfg".format(out_basedir_fullpath), "w") as out_file:
+    out_file.write('''
+## Global Settings
+DOCKERBASEDIR=/volume1/docker
+DOCKERCOMPOSEDIRSUFFIX="-compose"
+DOCKERCOMPOSEDIR=${DOCKERBASEDIR}/projects
+DOCKERCONFIGDIR=${DOCKERBASEDIR}/appdata
+DOCKERSTORAGEDIR=/volume1/data
+PUID=1028
+PGID=65537
+UMASK=002
+TZ=America/Chicago
 ''')
 
 for project in project_list:
@@ -51,17 +58,17 @@ for project in project_list:
     if project_vars["project_name"] == "name":
         continue
 
-    out_dir = "{}/{}".format(out_basedir_standard, project["name"])
+    out_dir = "{}/{}".format(out_basedir_fullpath, project["name"])
     os.makedirs(out_dir, exist_ok=True)
 
-    template = env_standard.get_template("docker-run.j2")
+    template = env.get_template("docker-run.j2")
     with open("{}/docker-run.sh".format(out_dir), "w") as out_file:
         out_file.write(template.render(project_vars=project_vars))
 
-    template = env_standard.get_template("docker-compose.j2")
+    template = env.get_template("docker-compose.j2")
     with open("{}/docker-compose.yaml".format(out_dir), "w") as out_file:
         out_file.write(template.render(project_vars=project_vars))
 
-    template = env_standard.get_template("run-once.j2")
+    template = env.get_template("run-once.j2")
     with open("{}/run-once.sh".format(out_dir), "w") as out_file:
         out_file.write(template.render(project_vars=project_vars))

@@ -20,22 +20,22 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import common_standard as common
+import common
 
 from jinja2 import Environment, FileSystemLoader
 
 init_vars = common.get_initial_variables()
 project_list = common.get_project_list()
 
-env_standard = Environment(loader=FileSystemLoader(
-    "./templates/portainer-templates/standard"), trim_blocks=True, lstrip_blocks=True)
-env_standard.globals.update(init_vars=init_vars)
-env_standard.globals.update(get_project_vars=common.get_project_vars)
-template = env_standard.get_template("templates.j2")
+env = Environment(loader=FileSystemLoader(
+    "./templates/portainer-templates/custom"), trim_blocks=True, lstrip_blocks=True)
+env.globals.update(init_vars=init_vars)
+env.globals.update(get_project_vars=common.get_project_vars)
+template = env.get_template("templates.j2")
 
 out_basedir = "./output/portainer-templates"
-out_basedir_standard = "{}/standard".format(out_basedir)
-out_basedirs_list = [out_basedir_standard]
+out_basedir_fullpath = "{}/custom".format(out_basedir)
+out_basedirs_list = [out_basedir_fullpath]
 
 for directory in out_basedirs_list:
     os.makedirs(directory, exist_ok=True)
@@ -44,7 +44,7 @@ projects = {
     "projects": project_list
 }
 
-out_filename = "{}/templates.json".format(out_basedir_standard)
+out_filename = "{}/templates.json".format(out_basedir_fullpath)
 with open(out_filename, "w") as out_file:
     out_file.write(template.render(projects))
 

@@ -62,7 +62,7 @@ def get_project_vars(project_name, init_vars, mode):
                 row["env_value"] = "${PUID:-1024}"
                 row["desc"] = "for UserID"
             if row["env_var"] == "TZ":
-                row["env_value"] = "${TZ:-Europe/Amsterdam}"
+                row["env_value"] = "${TZ:-America/Chicago}"
     elif mode == "templates":
         for row in project_vars["common_param_env_vars"]:
             if row["env_var"] == "PGID":
@@ -72,7 +72,7 @@ def get_project_vars(project_name, init_vars, mode):
                 row["env_value"] = 1024
                 row["desc"] = "for UserID"
             if row["env_var"] == "TZ":
-                row["env_value"] = "Europe/Amsterdam"
+                row["env_value"] = "America/Chicago"
 
     for row in project_vars["param_env_vars"]:
         if row["env_var"] == "TZ":

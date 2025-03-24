@@ -1,7 +1,7 @@
 # Portainer App Templates for LinuxServer.io Docker containers
 # Copyright (C) 2021  Technorabilia
 # Written by Simon de Kraa <simon@technorabilia.com>
-# Modified (C) 2025 madmaximux <madmaximux@GitHub>
+# Modified (C) 2025  Madmaximux <madmaximux@GitHub>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

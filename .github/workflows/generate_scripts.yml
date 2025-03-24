@@ -35,7 +35,7 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source_folder: 'lsio'
+        source_folder: './output/docker-bits/lsio'
         destination_repo: 'madmaximux/docker-bits'
         destination_folder: 'lsio'
         user_email: '68623691+madmaximux@users.noreply.github.com'

@@ -24,13 +24,17 @@ import common
 init_vars = common.get_initial_variables()
 project_list = common.get_project_list()
 
-env = Environment(loader=FileSystemLoader(
-    "templates"), trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
-env.globals.update(get_project_vars=common.get_project_vars)
+env_standard = Environment(loader=FileSystemLoader(
+    "templates/docker-bits/standard"), trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
+env_standard.globals.update(get_project_vars=common.get_project_vars)
 
-out_basedir = "./lsio"
-os.makedirs(out_basedir, exist_ok=True)
-with open("{}/docker-env.cfg".format(out_basedir), "w") as out_file:
+out_basedir = "./output/docker-bits/lsio"
+out_basedir_standard = "{}/standard".format(out_basedir)
+out_basedirs_list = [out_basedir_standard]
+for directory in out_basedirs_list:
+    os.makedirs(directory, exist_ok=True)
+
+with open("{}/docker-env.cfg".format(out_basedir_standard), "w") as out_file:
     out_file.write('''#BASEDIR=/volume1/docker
 #PUID=1024
 #PGID=100
@@ -45,17 +49,17 @@ for project in project_list:
     if project_vars["project_name"] == "name":
         continue
 
-    out_dir = "{}/{}".format(out_basedir, project["name"])
+    out_dir = "{}/{}".format(out_basedir_standard, project["name"])
     os.makedirs(out_dir, exist_ok=True)
 
-    template = env.get_template("docker-run.j2")
+    template = env_standard.get_template("docker-run.j2")
     with open("{}/docker-run.sh".format(out_dir), "w") as out_file:
         out_file.write(template.render(project_vars=project_vars))
 
-    template = env.get_template("docker-compose.j2")
+    template = env_standard.get_template("docker-compose.j2")
     with open("{}/docker-compose.yaml".format(out_dir), "w") as out_file:
         out_file.write(template.render(project_vars=project_vars))
 
-    template = env.get_template("run-once.j2")
+    template = env_standard.get_template("run-once.j2")
     with open("{}/run-once.sh".format(out_dir), "w") as out_file:
         out_file.write(template.render(project_vars=project_vars))

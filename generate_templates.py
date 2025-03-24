@@ -25,17 +25,24 @@ import common
 init_vars = common.get_initial_variables()
 project_list = common.get_project_list()
 
-env = Environment(loader=FileSystemLoader(
-    "templates"), trim_blocks=True, lstrip_blocks=True)
-env.globals.update(init_vars=init_vars)
-env.globals.update(get_project_vars=common.get_project_vars)
-template = env.get_template("templates.j2")
+env_standard = Environment(loader=FileSystemLoader(
+    "templates/portainer-templates/standard"), trim_blocks=True, lstrip_blocks=True)
+env_standard.globals.update(init_vars=init_vars)
+env_standard.globals.update(get_project_vars=common.get_project_vars)
+template = env_standard.get_template("templates.j2")
+
+out_basedir = "./output/portainer-templates"
+out_basedir_standard = "{}/standard".format(out_basedir)
+out_basedirs_list = [out_basedir_standard]
+
+for directory in out_basedirs_list:
+    os.makedirs(directory, exist_ok=True)
 
 projects = {
     "projects": project_list
 }
 
-out_filename = "templates.json"
+out_filename = "{}/templates.json".format(out_basedir_standard)
 with open(out_filename, "w") as out_file:
     out_file.write(template.render(projects))
 

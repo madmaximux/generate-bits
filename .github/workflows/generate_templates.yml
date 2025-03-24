@@ -35,9 +35,9 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source_file: 'templates.json'
+        source_file: './output/portainer-templates/standard/templates.json'
         destination_repo: 'madmaximux/portainer-templates'
-        destination_folder: 'lsio/templates'
+        destination_folder: 'lsio/templates/standard'
         user_email: '68623691+madmaximux@users.noreply.github.com'
         user_name: 'madmaximux'
         commit_message: 'Workflow update'

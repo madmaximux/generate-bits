@@ -15,43 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import json
-import os
-import sys
+from base_template_generator import BaseTemplateGenerator
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import common
-
-from jinja2 import Environment, FileSystemLoader
-
-init_vars = common.get_initial_variables()
-project_list = common.get_project_list()
-
-env = Environment(loader=FileSystemLoader(
-    "./templates/portainer-templates/standard"), trim_blocks=True, lstrip_blocks=True)
-env.globals.update(init_vars=init_vars)
-env.globals.update(get_project_vars=common.get_project_vars)
-template = env.get_template("templates.j2")
-
-out_basedir = "./output/portainer-templates"
-out_basedir_fullpath = "{}/standard".format(out_basedir)
-out_basedirs_list = [out_basedir_fullpath]
-
-for directory in out_basedirs_list:
-    os.makedirs(directory, exist_ok=True)
-
-projects = {
-    "projects": project_list
-}
-
-out_filename = "{}/templates.json".format(out_basedir_fullpath)
-with open(out_filename, "w") as out_file:
-    out_file.write(template.render(projects))
-
-# check valid json
-with open(out_filename) as in_file:
-    templates = json.load(in_file)
-
-# check filesize
-if os.path.getsize(out_filename) < 200000:
-    raise Exception
+if __name__ == "__main__":
+    generator = BaseTemplateGenerator(
+        template_dir="standard",
+        output_suffix="standard"
+    )
+    generator.generate_templates()

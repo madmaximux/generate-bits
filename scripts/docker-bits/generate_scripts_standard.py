@@ -15,53 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
-import sys
+from base_script_generator import BaseScriptGenerator
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import common
-
-from jinja2 import Environment, FileSystemLoader
-
-init_vars = common.get_initial_variables()
-project_list = common.get_project_list()
-
-env = Environment(loader=FileSystemLoader(
-    "./templates/docker-bits/standard"), trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
-env.globals.update(get_project_vars=common.get_project_vars)
-
-out_basedir = "./output/docker-bits/lsio"
-out_basedir_fullpath = "{}/standard".format(out_basedir)
-out_basedirs_list = [out_basedir_fullpath]
-for directory in out_basedirs_list:
-    os.makedirs(directory, exist_ok=True)
-
-with open("{}/docker-env.cfg".format(out_basedir_fullpath), "w") as out_file:
-    out_file.write('''#BASEDIR=/volume1/docker
+if __name__ == "__main__":
+    docker_env_content = '''
+#BASEDIR=/volume1/docker
 #PUID=1024
 #PGID=100
-#TZ=Europe/Amsterdam
-''')
+#TZ=America/Chicago
+'''
 
-for project in project_list:
-    print(project["name"])
-
-    project_vars = common.get_project_vars(
-        project["name"], init_vars, mode="scripts")
-    if project_vars["project_name"] == "name":
-        continue
-
-    out_dir = "{}/{}".format(out_basedir_fullpath, project["name"])
-    os.makedirs(out_dir, exist_ok=True)
-
-    template = env.get_template("docker-run.j2")
-    with open("{}/docker-run.sh".format(out_dir), "w") as out_file:
-        out_file.write(template.render(project_vars=project_vars))
-
-    template = env.get_template("docker-compose.j2")
-    with open("{}/docker-compose.yaml".format(out_dir), "w") as out_file:
-        out_file.write(template.render(project_vars=project_vars))
-
-    template = env.get_template("run-once.j2")
-    with open("{}/run-once.sh".format(out_dir), "w") as out_file:
-        out_file.write(template.render(project_vars=project_vars))
+    generator = BaseScriptGenerator(
+        template_dir="standard",
+        output_suffix="standard",
+        docker_env_content=docker_env_content
+    )
+    generator.generate_scripts()

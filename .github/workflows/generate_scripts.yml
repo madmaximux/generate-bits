@@ -7,38 +7,63 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    env:
+      OUTPUT_PATH: ./output/docker-bits/lsio
+      DESTINATION_REPO: madmaximux/docker-bits
+      DESTINATION_BRANCH: main
+      DESTINATION_FOLDER: lsio
 
     steps:
     - uses: actions/checkout@v2
+    
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
+        cache: 'pip'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.local/lib/python3.9/site-packages
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Execute Python script
+    
+    - name: Execute Python scripts
       run: |
+        set -e
+        echo "Generating standard scripts..."
         python scripts/docker-bits/generate_scripts_standard.py
+        echo "Generating custom scripts..."
+        python scripts/docker-bits/generate_scripts_custom.py
+    
     - name: Pushes output to destination repository
+      if: success()
       uses: crykn/copy_folder_to_another_repo_action@v1.0.6
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source_folder: './output/docker-bits/lsio'
-        destination_repo: 'madmaximux/docker-bits'
-        destination_folder: 'lsio'
-        user_email: '68623691+madmaximux@users.noreply.github.com'
-        user_name: 'madmaximux'
-        destination_branch: 'main'
+        source_folder: ${{ env.OUTPUT_PATH }}
+        destination_repo: ${{ env.DESTINATION_REPO }}
+        destination_branch: ${{ env.DESTINATION_BRANCH }}
+        destination_folder: ${{ env.DESTINATION_FOLDER }}
+        user_name: ${{ vars.USER_NAME }}
+        user_email: ${{ vars.USER_EMAIL }}
         commit_msg: 'Workflow update'

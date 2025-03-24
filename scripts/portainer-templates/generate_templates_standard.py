@@ -17,16 +17,18 @@
 
 import json
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import common
 
 from jinja2 import Environment, FileSystemLoader
-
-import common
 
 init_vars = common.get_initial_variables()
 project_list = common.get_project_list()
 
 env_standard = Environment(loader=FileSystemLoader(
-    "templates/portainer-templates/standard"), trim_blocks=True, lstrip_blocks=True)
+    "./templates/portainer-templates/standard"), trim_blocks=True, lstrip_blocks=True)
 env_standard.globals.update(init_vars=init_vars)
 env_standard.globals.update(get_project_vars=common.get_project_vars)
 template = env_standard.get_template("templates.j2")

@@ -16,16 +16,18 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import common
 
 from jinja2 import Environment, FileSystemLoader
-
-import common
 
 init_vars = common.get_initial_variables()
 project_list = common.get_project_list()
 
 env_standard = Environment(loader=FileSystemLoader(
-    "templates/docker-bits/standard"), trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
+    "./templates/docker-bits/standard"), trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
 env_standard.globals.update(get_project_vars=common.get_project_vars)
 
 out_basedir = "./output/docker-bits/lsio"

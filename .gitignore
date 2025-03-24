@@ -1,6 +1,8 @@
 .vscode
 lsio
 venv
+.venv
+output
 *.pyc
 *.db
 *.json

@@ -64,6 +64,22 @@ def get_project_vars(project_name, init_vars, mode):
                 row["desc"] = "for UserID"
             if row["env_var"] == "TZ":
                 row["env_value"] = "${TZ:-America/Chicago}"
+                row["desc"] = "for timezone"
+        
+        # Add UMASK between PUID and TZ if it doesn't exist
+        if not any(row["env_var"] == "UMASK" for row in project_vars["common_param_env_vars"]):
+            umask_env_var = {
+                "env_var": "UMASK",
+                "env_value": "${UMASK:-002}",
+                "desc": "for UMASK"
+            }
+            # Find TZ and insert UMASK before it
+            tz_index = next((i for i, row in enumerate(project_vars["common_param_env_vars"]) 
+                            if row["env_var"] == "TZ"), -1)
+            if tz_index >= 0:
+                project_vars["common_param_env_vars"].insert(tz_index, umask_env_var)
+            else:
+                project_vars["common_param_env_vars"].append(umask_env_var)
     elif mode == "templates":
         for row in project_vars["common_param_env_vars"]:
             if row["env_var"] == "PGID":
@@ -75,6 +91,21 @@ def get_project_vars(project_name, init_vars, mode):
             if row["env_var"] == "TZ":
                 row["env_value"] = "America/Chicago"
 
+        # Add UMASK between PUID and TZ if it doesn't exist
+        if not any(row["env_var"] == "UMASK" for row in project_vars["common_param_env_vars"]):
+            umask_env_var = {
+                "env_var": "UMASK",
+                "env_value": "${UMASK:-002}",
+                "desc": "for UMASK"
+            }
+            # Find TZ and insert UMASK before it
+            tz_index = next((i for i, row in enumerate(project_vars["common_param_env_vars"]) 
+                            if row["env_var"] == "TZ"), -1)
+            if tz_index >= 0:
+                project_vars["common_param_env_vars"].insert(tz_index, umask_env_var)
+            else:
+                project_vars["common_param_env_vars"].append(umask_env_var)
+            
     for row in project_vars["param_env_vars"]:
         if row["env_var"] == "TZ":
             project_vars["param_env_vars"].remove(row)

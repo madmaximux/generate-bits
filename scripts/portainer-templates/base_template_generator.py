@@ -44,7 +44,7 @@ class BaseTemplateGenerator:
         try:
             self.create_output_directories()
             
-            template = self.env.get_template("templates.j2")
+            template = self.env.get_template("templates.json.j2")
             projects = {"projects": self.project_list}
             
             out_filename = os.path.join(self.out_basedir_fullpath, "templates.json")

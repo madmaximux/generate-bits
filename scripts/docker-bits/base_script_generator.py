@@ -66,17 +66,17 @@ class BaseScriptGenerator:
                 os.makedirs(out_dir, exist_ok=True)
 
                 # Generate docker-run.sh
-                template = self.env.get_template("docker-run.j2")
+                template = self.env.get_template("docker-run.sh.j2")
                 with open(os.path.join(out_dir, "docker-run.sh"), "w") as out_file:
                     out_file.write(template.render(project_vars=project_vars))
 
                 # Generate docker-compose.yaml
-                template = self.env.get_template("docker-compose.j2")
+                template = self.env.get_template("docker-compose.yaml.j2")
                 with open(os.path.join(out_dir, "docker-compose.yaml"), "w") as out_file:
                     out_file.write(template.render(project_vars=project_vars))
 
                 # Generate run-once.sh
-                template = self.env.get_template("run-once.j2")
+                template = self.env.get_template("run-once.sh.j2")
                 with open(os.path.join(out_dir, "run-once.sh"), "w") as out_file:
                     out_file.write(template.render(project_vars=project_vars))
 

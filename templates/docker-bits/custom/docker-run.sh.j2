@@ -3,15 +3,15 @@
 . ./.env
 docker run -d \
   --name={{ project_vars.param_container_name }} \
-{% if project_vars.param_usage_include_hostname is sameas true %}
+{# {% if project_vars.param_usage_include_hostname is sameas true %}
   --hostname={{ project_vars.param_hostname }} `# {{ project_vars.param_hostname_desc }}` \
 {% elif project_vars.param_usage_include_hostname == 'optional' %}
     --hostname={{ project_vars.param_hostname }} `# optional` `# {{ project_vars.param_hostname_desc }}` \
-{% endif %}
+{% endif %} #}
 {% if project_vars.param_usage_include_net is sameas true %}
   --net={{ project_vars.param_net }} `# {{ project_vars.param_net_desc }}` \
 {% elif project_vars.param_usage_include_net == 'optional' %}
-  --net={{ project_vars.param_net }} `# optional` `# {{ project_vars.param_net_desc }}` \
+  # --net={{ project_vars.param_net }} `# optional` `# {{ project_vars.param_net_desc }}` \
 {% endif %}
 {% if project_vars.privileged is sameas true %}
   --privileged \
@@ -62,7 +62,7 @@ docker run -d \
 {% if item.vol_path in exc_param_volumes %}
   -v {{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
 {% else %}
-  -v ${BASEDIR:-/volume1/docker}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
+  -v ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -71,7 +71,7 @@ docker run -d \
 {% if item.vol_path in exc_param_volumes %}
   -v {{ item.vol_path }}:{{ item.vol_path }} `# optional` `# {{ item.desc }}` \
 {% else %}
-  -v ${BASEDIR:-/volume1/docker}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# optional` `# {{ item.desc }}` \
+  -v ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# optional` `# {{ item.desc }}` \
 {% endif %}
 {% endfor %}
 {% endif %}

@@ -1,1 +1,27 @@
 {% set exc_param_volumes = ["/dev/input", "/lib/modules", "/opt/vc/lib", "/run/udev:ro", "/run/udev/data", "/var/log", "/var/run/docker.sock"]  %}
+
+{% set custom_param_volumes = {
+}  %}
+
+{% set custom_param_volumes_opt = {
+    "tautulli": [
+        {"vol_path": "/plex_logs", "vol_host_path": "${DOCKERCONFIGDIR:-/volume1/docker/appdata}/plex/Library/Application Support/Plex Media Server/Logs", "desc": "Plex logs"}
+    ]
+}  %}
+
+{% set custom_param_ports = {
+    "plex": [
+        {"external_port": "32400", "internal_port": "32400/tcp", "port_desc": "Plex Media Server"}
+    ]
+}  %}
+
+{% set custom_param_ports_opt = {
+    "plex": [
+        {"external_port": "32412", "internal_port": "32412/udp", "port_desc": "GDM network discovery (local)"},
+        {"external_port": "32410", "internal_port": "32410/udp", "port_desc": "GDM network discovery (local)"},
+        {"external_port": "32413", "internal_port": "32413/udp", "port_desc": "GDM network discovery (local)"},
+        {"external_port": "32414", "internal_port": "32414/udp", "port_desc": "GDM network discovery (local)"}
+    ]
+}  %}
+
+

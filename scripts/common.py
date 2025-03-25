@@ -114,14 +114,11 @@ def get_project_vars(project_name, init_vars, mode):
 
     if project_vars["project_logo"] == "http://www.logo.com/logo.png":
         project_vars["project_logo"] = ""
-    
+
     if project_name == "plex":
         for row in project_vars["param_ports"]:
             if row["external_port"] == "80":
-                row["external_port"] = "32400"
-                row["internal_port"] = "32400"
-                row["port_desc"] = "Plex WebUI"
-                row["WebUI"] = "Plex WebUI"
+                project_vars["param_ports"].remove(row)
 
     if "full_custom_readme" in project_vars.keys() and project_vars["full_custom_readme"] != "":
         project_vars["project_blurb"] = "# This container needs special attention. Please check https://hub.docker.com/r/linuxserver/{} for details.".format(
@@ -139,6 +136,8 @@ def get_initial_variables():
     resp = requests.get(vars_url)
     init_vars.update(yaml.load(resp.text, Loader=yaml.FullLoader))
 
+    # blank out certain vars
+    init_vars["param_net"] = ""
     return init_vars
 
 
@@ -157,7 +156,6 @@ def get_project_list():
 
     # # testing
     # project_list = list(
-    #     filter(lambda project: project["name"] == "sonarr", project_list))
-    #     filter(lambda project: project["name"] == "plex", project_list))
+    #     filter(lambda project: project["name"] in ["plex", "sonarr", "tautulli", "nzbget"], project_list))
 
     return project_list

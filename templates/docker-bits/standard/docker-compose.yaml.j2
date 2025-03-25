@@ -72,7 +72,7 @@ services:
       - {{ item.vol_path }}:{{ item.vol_path }}
 {% else %}
       # {{ item.desc }}
-      - ${BASEDIR:-/volume1/docker}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }}
+      - ${BASEDIR:-/volume1/docker}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -83,7 +83,7 @@ services:
       - {{ item.vol_path }}:{{ item.vol_path }} # optional
 {% else %}
       # {{ item.desc }}
-      - ${BASEDIR:-/volume1/docker}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} # optional
+      - ${BASEDIR:-/volume1/docker}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }} # optional
 {% endif %}
 {% endfor %}
 {% endif %}

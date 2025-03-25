@@ -19,16 +19,17 @@ from base_script_generator import BaseScriptGenerator
 
 if __name__ == "__main__":
     docker_env_content = '''
-## Global Settings
-DOCKERBASEDIR=/volume1/docker
-DOCKERCOMPOSEDIRSUFFIX="-compose"
-DOCKERCOMPOSEDIR=${DOCKERBASEDIR}/projects
-DOCKERCONFIGDIR=${DOCKERBASEDIR}/appdata
-DOCKERSTORAGEDIR=/volume1/data
-PUID=1028
-PGID=65537
-UMASK=002
-TZ=America/Chicago
+# ## Global Settings
+# DOCKERBASEDIR=/volume1/docker
+# DOCKERCOMPOSEDIRSUFFIX="-compose"
+# DOCKERCOMPOSEDIR=${DOCKERBASEDIR}/projects
+# DOCKERCONFIGDIR=${DOCKERBASEDIR}/appdata
+# DOCKERSTORAGEDIR=/volume1/data
+# PUID=1024
+# PGID=100
+# UMASK=002
+# TZ=America/Chicago
+# NETWORK_NAME=synobridge
 '''
 
     generator = BaseScriptGenerator(

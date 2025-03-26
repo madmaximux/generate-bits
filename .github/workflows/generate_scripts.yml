@@ -10,6 +10,7 @@ on:
 
 jobs:
   build:
+    name: Generate Scripts
     runs-on: ubuntu-latest
     env:
       SOURCE_PATH: ./output/docker-bits/lsio

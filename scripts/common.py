@@ -156,6 +156,6 @@ def get_project_list():
 
     # # testing
     # project_list = list(
-    #     filter(lambda project: project["name"] in ["plex", "sonarr", "tautulli", "nzbget"], project_list))
+    #     filter(lambda project: project["name"] in ["plex", "sonarr", "tautulli", "nzbget", "emby", "jellyfin"], project_list))
 
     return project_list

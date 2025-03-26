@@ -69,8 +69,56 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set up docker-compose
+        uses: KengoTODA/actions-setup-docker-compose@v1
+        with:
+          version: '2.14.2'
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Restore Docker image cache
+        uses: actions/cache@v3
+        with:
+          path: ./docker-cache
+          key: ${{ runner.os }}-docker-images-${{ matrix.service }}
+
+      - name: Pre-pull and cache Docker image
+        run: |
+          mkdir -p docker-cache
+          SERVICE="${{ matrix.service }}"
+          case "$SERVICE" in
+            plex)
+              IMAGE="lscr.io/linuxserver/plex:latest"
+              ;;
+            jellyfin)
+              IMAGE="lscr.io/linuxserver/jellyfin:latest"
+              ;;
+            nzbget)
+              IMAGE="lscr.io/linuxserver/nzbget:latest"
+              ;;
+            emby)
+              IMAGE="lscr.io/linuxserver/emby:latest"
+              ;;
+            sonarr)
+              IMAGE="lscr.io/linuxserver/sonarr:latest"
+              ;;
+            *)
+              echo "Unknown service: $SERVICE"
+              exit 1
+              ;;
+          esac
+          TARBALL="docker-cache/${SERVICE}.tar"
+          if [ -f "$TARBALL" ]; then
+            echo "Loading cached image from $TARBALL"
+            docker load -i "$TARBALL"
+          else
+            echo "Pulling image $IMAGE"
+            docker pull "$IMAGE"
+            echo "Saving image to $TARBALL"
+            docker save "$IMAGE" -o "$TARBALL"
+          fi
+        shell: bash
 
       - name: Define Docker Compose File
         run: echo "COMPOSE_FILE=${SOURCE_PATH}/custom/${{ matrix.service }}/docker-compose.yaml" >> $GITHUB_ENV

@@ -81,21 +81,21 @@ services:
       {% for item in project_vars.param_volumes %}
             {% if item.vol_path in common.exc_param_volumes %}
       # {{ item.desc }}
-      {{ item.vol_path }}:{{ item.vol_path }}
+      - {{ item.vol_path }}:{{ item.vol_path }}
             {% elif item.vol_path == '/config' %}
-      ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
+      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
             {% elif paths.media_paths|select('in', item.vol_path)|list|length == 0 and paths.downloads_paths|select('in', item.vol_path)|list|length == 0 %}
       # {{ item.desc }}
-      ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
+      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
             {% elif checks.has_media and checks.has_downloads and not checks.path_added %}
-      ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
+      - ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
                 {% set checks.path_added = true %}
             {% elif checks.has_downloads and not checks.has_media and not checks.path_added %}
-      ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
+      - ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
                 {% set checks.path_added = true %}
             {% elif checks.has_media and not checks.has_downloads and not checks.path_added %}
                 {% set checks.path_added = true %}
-      ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
+      - ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
             {% endif %}
       {% endfor %}
 {% endif %}
@@ -114,18 +114,18 @@ services:
       # {{ item.desc }}
       # - {{ item.vol_path }}:{{ item.vol_path }}
             {% elif item.vol_path == '/config' %}
-      ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
+      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
             {% elif paths.media_paths|select('in', item.vol_path)|list|length == 0 and paths.downloads_paths|select('in', item.vol_path)|list|length == 0 %}
       # {{ item.desc }}
-      ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
+      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
             {% elif checks.has_media and checks.has_downloads and not checks.path_added %}
-      ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
+      - ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
                 {% set checks.path_added = true %}
             {% elif checks.has_downloads and not checks.path_added %}
-      ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
+      - ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
                 {% set checks.path_added = true %}
             {% elif checks.has_media and not checks.path_added %}
-      ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
+      - ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
                 {% set checks.path_added = true %}
             {% endif %}
       {% endfor %}
@@ -135,7 +135,7 @@ services:
 {% if project_vars.project_name in common.custom_param_volumes %}
     {% for volume in common.custom_param_volumes[project_vars.project_name] %}
       # {{ volume.desc }}
-      {{ volume.vol_host_path }}:{{ volume.vol_path }}
+      - {{ volume.vol_host_path }}:{{ volume.vol_path }}
     {% endfor %}
 {% endif %}
 {# common.custom_param_volumes end #}
@@ -225,7 +225,7 @@ services:
         {% else %}
     {{ item.name_compose }}: # optional
             {% for item2 in item.value %}
-     # - {{ item2 }} # optional
+      # - {{ item2 }} # optional
             {% endfor %}
         {% endif %}
     {% endfor %}

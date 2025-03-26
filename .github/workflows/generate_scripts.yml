@@ -1,15 +1,18 @@
 name: Generate scripts
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
   schedule:
-  - cron: "0 0 * * *"
+    - cron: "0 0 * * *"  # Runs daily at midnight UTC
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      OUTPUT_PATH: ./output/docker-bits/lsio
+      SOURCE_PATH: ./output/docker-bits/lsio
       DESTINATION_REPO: madmaximux/docker-bits
       DESTINATION_BRANCH: main
       DESTINATION_FOLDER: lsio
@@ -60,7 +63,7 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source_folder: ${{ env.OUTPUT_PATH }}
+        source_folder: ${{ env.SOURCE_PATH }}
         destination_repo: ${{ env.DESTINATION_REPO }}
         destination_branch: ${{ env.DESTINATION_BRANCH }}
         destination_folder: ${{ env.DESTINATION_FOLDER }}

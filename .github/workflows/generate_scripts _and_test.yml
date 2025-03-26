@@ -53,6 +53,12 @@ jobs:
           echo "Generating custom scripts..."
           python scripts/docker-bits/generate_scripts_custom.py
 
+      - name: Upload generated files
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-bits-lsio-output
+          path: ./output/docker-bits/lsio
+
   test:
     name: Test docker-compose files
     runs-on: ubuntu-latest
@@ -68,6 +74,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Download generated files
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-bits-lsio-output
+          path: ./output/docker-bits/lsio
 
       - name: Set up docker-compose
         uses: KengoTODA/actions-setup-docker-compose@v1
@@ -145,6 +157,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download generated files
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-bits-lsio-output
+          path: ./output/docker-bits/lsio
 
       - name: Pushes output to destination repository
         if: success()

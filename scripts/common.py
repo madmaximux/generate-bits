@@ -64,7 +64,6 @@ def get_project_vars(project_name, init_vars, mode):
                 row["desc"] = "for UserID"
             if row["env_var"] == "TZ":
                 row["env_value"] = "${TZ:-America/Chicago}"
-                row["desc"] = "for timezone"
         
         # Add UMASK between PUID and TZ if it doesn't exist
         if not any(row["env_var"] == "UMASK" for row in project_vars["common_param_env_vars"]):

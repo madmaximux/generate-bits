@@ -1,8 +1,9 @@
 {% import "common.j2" as common %}
-
+{# Header #}
 {{ project_vars.project_blurb }}
 {% if not project_vars.custom_compose is defined %}---
 
+{# Services #}
 services:
   {{ project_vars.project_name }}:
     image: ghcr.io/{{ project_vars.lsio_project_name_short }}/{{ project_vars.project_name }}
@@ -23,14 +24,14 @@ services:
     cap_add:
 {% endif %}
 {% if project_vars.cap_add_param %}
-{% for item in project_vars.cap_add_param_vars %}
+    {% for item in project_vars.cap_add_param_vars %}
       - {{ item.cap_add_var }}
-{% endfor %}
+    {% endfor %}
 {% endif %}
 {% if project_vars.opt_cap_add_param %}
-{% for item in project_vars.opt_cap_add_param_vars %}
+    {% for item in project_vars.opt_cap_add_param_vars %}
       - {{ item.cap_add_var }} # optional
-{% endfor %}
+    {% endfor %}
 {% endif %}
 {% if project_vars.param_usage_include_net is sameas true %}
     # network_mode: {{ project_vars.param_net }}
@@ -41,134 +42,150 @@ services:
     environment:
 {% endif %}
 {% if project_vars.common_param_env_vars_enabled is sameas true %}
-{% for item in project_vars.common_param_env_vars %}
+    {% for item in project_vars.common_param_env_vars %}
       - {{ item.env_var }}={{ item.env_value }}
-{% endfor %}
+    {% endfor %}
 {% elif project_vars.common_param_env_vars_enabled == 'optional' %}
-{% for item in project_vars.common_param_env_vars %}
+    {% for item in project_vars.common_param_env_vars %}
       # {{ item.desc }}
       # - {{ item.env_var }}={{ item.env_value }} # optional
-{% endfor %}
+    {% endfor %}
 {% endif %}
 {% if project_vars.param_usage_include_env %}
-{% for item in project_vars.param_env_vars %}
+    {% for item in project_vars.param_env_vars %}
       - {{ item.env_var }}={{ item.env_value }}
-{% endfor %}
+    {% endfor %}
 {% endif %}
 {% if project_vars.opt_param_usage_include_env %}
-{% for item in project_vars.opt_param_env_vars %}
+    {% for item in project_vars.opt_param_env_vars %}
       # - {{ item.env_var }}={{ item.env_value }} # optional
-{% endfor %}
+    {% endfor %}
 {% endif %}
+{# Start of Volumes #}
 {% if project_vars.param_usage_include_vols or project_vars.opt_param_usage_include_vols %}
+      {% set paths = namespace(media_paths=['/tv', '/movies', '/music'], downloads_paths=['/downloads']) %}
+      {% set checks = namespace(has_media=false, has_downloads=false, path_added=false) %}
     volumes:
+{% else %}
+    # volumes:
 {% endif %}
+{# project_vars.param_volumes start #}
 {% if project_vars.param_usage_include_vols %}
-{% set media_paths = ['/tv', '/movies', '/music'] %}
-{% set downloads_paths = ['/downloads'] %}
-{% set ns = namespace(has_media=false, has_downloads=false) %}
-{% for item in project_vars.param_volumes %}
-      {% if media_paths|select('in', item.vol_path)|list|length > 0 %}
-            {% set ns.has_media = true %}
-      {% elif downloads_paths|select('in', item.vol_path)|list|length > 0 %}
-            {% set ns.has_downloads = true %}
-      {% endif %}
-{% endfor %}
-{% for item in project_vars.param_volumes %}
-{% if item.vol_path in common.exc_param_volumes %}
+      {% for item in project_vars.param_volumes %}
+            {% if paths.media_paths|select('in', item.vol_path)|list|length > 0 %}
+                  {% set checks.has_media = true %}
+            {% elif paths.downloads_paths|select('in', item.vol_path)|list|length > 0 %}
+                  {% set checks.has_downloads = true %}
+            {% endif %}
+      {% endfor %}
+      {% for item in project_vars.param_volumes %}
+            {% if item.vol_path in common.exc_param_volumes %}
       # {{ item.desc }}
-      - {{ item.vol_path }}:{{ item.vol_path }}
-{% elif item.vol_path == '/config' %}
-      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
-{% else %}
-      {% if media_paths|select('in', item.vol_path)|list|length == 0 and downloads_paths|select('in', item.vol_path)|list|length == 0 %}
-      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
-      {% endif %}
+      {{ item.vol_path }}:{{ item.vol_path }}
+            {% elif item.vol_path == '/config' %}
+      ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
+            {% elif paths.media_paths|select('in', item.vol_path)|list|length == 0 and paths.downloads_paths|select('in', item.vol_path)|list|length == 0 %}
+      # {{ item.desc }}
+      ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
+            {% elif checks.has_media and checks.has_downloads and not checks.path_added %}
+      ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
+                {% set checks.path_added = true %}
+            {% elif checks.has_downloads and not checks.has_media and not checks.path_added %}
+      ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
+                {% set checks.path_added = true %}
+            {% elif checks.has_media and not checks.has_downloads and not checks.path_added %}
+                {% set checks.path_added = true %}
+      ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
+            {% endif %}
+      {% endfor %}
 {% endif %}
-{% endfor %}
-{% if ns.has_media and ns.has_downloads %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
-{% elif ns.has_downloads %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
-{% elif ns.has_media %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
-{% endif %}
-{% endif %}
+{# project_vars.param_volumes end #}
+{# project_vars.opt_param_volumes start #}
 {% if project_vars.opt_param_usage_include_vols %}
-{% set media_paths = ['/tv', '/movies', '/music'] %}
-{% set downloads_paths = ['/downloads'] %}
-{% set ns = namespace(has_media=false, has_downloads=false) %}
-{% for item in project_vars.opt_param_volumes %}
-      {% if media_paths|select('in', item.vol_path)|list|length > 0 %}
-            {% set ns.has_media = true %}
-      {% elif downloads_paths|select('in', item.vol_path)|list|length > 0 %}
-            {% set ns.has_downloads = true %}
-      {% endif %}
-{% endfor %}
-{% for item in project_vars.opt_param_volumes %}
-{% if item.vol_path in common.exc_param_volumes %}
+      {% for item in project_vars.opt_param_volumes %}
+            {% if paths.media_paths|select('in', item.vol_path)|list|length > 0 %}
+                  {% set checks.has_media = true %}
+            {% elif paths.downloads_paths|select('in', item.vol_path)|list|length > 0 %}
+                  {% set checks.has_downloads = true %}
+            {% endif %}
+      {% endfor %}
+      {% for item in project_vars.opt_param_volumes %}
+            {% if item.vol_path in common.exc_param_volumes %}
       # {{ item.desc }}
-      - {{ item.vol_path }}:{{ item.vol_path }}
-{% elif item.vol_path == '/config' %}
-      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
-{% else %}
-      {% if media_paths|select('in', item.vol_path)|list|length == 0 and downloads_paths|select('in', item.vol_path)|list|length == 0 %}
-      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
-      {% endif %}
+      # - {{ item.vol_path }}:{{ item.vol_path }}
+            {% elif item.vol_path == '/config' %}
+      ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
+            {% elif paths.media_paths|select('in', item.vol_path)|list|length == 0 and paths.downloads_paths|select('in', item.vol_path)|list|length == 0 %}
+      # {{ item.desc }}
+      ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
+            {% elif checks.has_media and checks.has_downloads and not checks.path_added %}
+      ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
+                {% set checks.path_added = true %}
+            {% elif checks.has_downloads and not checks.path_added %}
+      ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
+                {% set checks.path_added = true %}
+            {% elif checks.has_media and not checks.path_added %}
+      ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
+                {% set checks.path_added = true %}
+            {% endif %}
+      {% endfor %}
 {% endif %}
-{% endfor %}
-{% if ns.has_media and ns.has_downloads %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
-{% elif ns.has_downloads %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
-{% elif ns.has_media %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
-{% endif %}
-{% endif %}
+{# project_vars.opt_param_volumes end #}
+{# common.custom_param_volumes start #}
 {% if project_vars.project_name in common.custom_param_volumes %}
-{% for volume in common.custom_param_volumes[project_vars.project_name] %}
-      - {{ volume.vol_host_path }}:{{ volume.vol_path }} # {{ volume.desc }}
-{% endfor %}
+    {% for volume in common.custom_param_volumes[project_vars.project_name] %}
+      # {{ volume.desc }}
+      {{ volume.vol_host_path }}:{{ volume.vol_path }}
+    {% endfor %}
 {% endif %}
+{# common.custom_param_volumes end #}
+{# common.custom_param_volumes_opt start #}
 {% if project_vars.project_name in common.custom_param_volumes_opt %}
-{% for volume in common.custom_param_volumes_opt[project_vars.project_name] %}
-      # - {{ volume.vol_host_path }}:{{ volume.vol_path }} # {{ volume.desc }}
-{% endfor %}
+    {% for volume in common.custom_param_volumes_opt[project_vars.project_name] %}
+      # {{ volume.desc }}
+      # - {{ volume.vol_host_path }}:{{ volume.vol_path }}
+    {% endfor %}
 {% endif %}
 {% if project_vars.param_usage_include_ports or project_vars.opt_param_usage_include_ports %}
-{% if project_vars.param_net == 'host' %}
+    {% if project_vars.param_net == 'host' %}
     ports:
-{% else %}
+    {% else %}
     # ports:
-{% endif %}
+    {% endif %}
 {% endif %}
 {% if project_vars.param_usage_include_ports %}
-{% for item in project_vars.param_ports %}
-{% if project_vars.param_net == 'host' %}
-      - {{ item.external_port }}:{{ item.internal_port }} # {{ item.port_desc }}
-{% else %}
-      # - {{ item.external_port }}:{{ item.internal_port }} # {{ item.port_desc }}
-{% endif %}
-{% endfor %}
+    {% for item in project_vars.param_ports %}
+        {% if project_vars.param_net == 'host' %}
+      # {{ item.port_desc }}
+      - {{ item.external_port }}:{{ item.internal_port }}
+        {% else %}
+      # {{ item.port_desc }}
+      # - {{ item.external_port }}:{{ item.internal_port }}
+        {% endif %}
+    {% endfor %}
 {% endif %}
 {% if project_vars.project_name in common.custom_param_ports %}
-{% for port in common.custom_param_ports[project_vars.project_name] %}
-{% if project_vars.param_net == 'host' %}
-      - {{ port.external_port }}:{{ port.internal_port }} # {{ port.port_desc }}
-{% else %}
-      # - {{ port.external_port }}:{{ port.internal_port }} # {{ port.port_desc }}
-{% endif %}
-{% endfor %}
+    {% for port in common.custom_param_ports[project_vars.project_name] %}
+        {% if project_vars.param_net == 'host' %}
+      # {{ port.port_desc }}
+      - {{ port.external_port }}:{{ port.internal_port }}
+        {% else %}
+      # {{ port.port_desc }}
+      # - {{ port.external_port }}:{{ port.internal_port }}
+        {% endif %}
+    {% endfor %}
 {% endif %}
 {% if project_vars.project_name in common.custom_param_ports_opt %}
-{% for port in common.custom_param_ports_opt[project_vars.project_name] %}
-      # - {{ port.external_port }}:{{ port.internal_port }} # {{ port.port_desc }}
-{% endfor %}
+    {% for port in common.custom_param_ports_opt[project_vars.project_name] %}
+      # {{ port.port_desc }}
+      # - {{ port.external_port }}:{{ port.internal_port }}
+    {% endfor %}
 {% endif %}
 {% if project_vars.opt_param_usage_include_ports %}
-{% for item in project_vars.opt_param_ports %}
-      # - {{ item.external_port }}:{{ item.internal_port }} # {{ item.port_desc }} # optional
-{% endfor %}
+    {% for item in project_vars.opt_param_ports %}
+      # {{ item.port_desc }} 
+      # - {{ item.external_port }}:{{ item.internal_port }} # optional
+    {% endfor %}
 {% endif %}
     networks:
       default:
@@ -178,49 +195,49 @@ services:
     devices:
 {% endif %}
 {% if project_vars.param_device_map %}
-{% for item in project_vars.param_devices %}
+    {% for item in project_vars.param_devices %}
       # {{ item.desc }}
       - {{ item.device_host_path }}:{{ item.device_path }}
-{% endfor %}
+    {% endfor %}
 {% endif %}
 {% if project_vars.opt_param_device_map %}
-{% for item in project_vars.opt_param_devices %}
+    {% for item in project_vars.opt_param_devices %}
       # {{ item.desc }}
-      - {{ item.device_host_path }}:{{ item.device_path }} # optional
-{% endfor %}
+      # - {{ item.device_host_path }}:{{ item.device_path }} # optional
+    {% endfor %}
 {% endif %}
 {% if project_vars.custom_params is defined %}
-{% for item in project_vars.custom_params %}
-{% if item.array is not defined %}
+    {% for item in project_vars.custom_params %}
+        {% if item.array is not defined %}
     {{ item.name_compose }}: "{{ item.value }}"
-{% else %}
+        {% else %}
     {{ item.name_compose }}:
-{% for item2 in item.value %}
+            {% for item2 in item.value %}
       - {{ item2 }}
-{% endfor %}
-{% endif %}
-{% endfor %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
 {% endif %}
 {% if project_vars.opt_custom_params is defined %}
-{% for item in project_vars.opt_custom_params %}
-{% if item.array is not defined %}
-    {{ item.name_compose }}: "{{ item.value }}" # optional
-{% else %}
+    {% for item in project_vars.opt_custom_params %}
+        {% if item.array is not defined %}
+    # {{ item.name_compose }}: "{{ item.value }}" # optional
+        {% else %}
     {{ item.name_compose }}: # optional
-{% for item2 in item.value %}
-      - {{ item2 }} # optional
-{% endfor %}
+            {% for item2 in item.value %}
+     # - {{ item2 }} # optional
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
 {% endif %}
-{% endfor %}
-{% endif %}
-{% if project_vars.privileged is sameas true %}
-{% else %}
+{% if project_vars.privileged is sameas false %}
     security_opt:
       - no-new-privileges:true
 {% endif %}
     restart: unless-stopped{% else %}{{ project_vars.custom_compose }}{% endif %}
 
 
+{# Network #}
 networks:
   default:
     name: ${NETWORK_NAME:-synobridge}

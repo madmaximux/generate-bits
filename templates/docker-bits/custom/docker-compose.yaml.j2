@@ -83,19 +83,19 @@ services:
       # {{ item.desc }}
       - {{ item.vol_path }}:{{ item.vol_path }}
             {% elif item.vol_path == '/config' %}
-      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
+      - ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}${DOCKERCONFIGDIR:-}:{{ item.vol_path }}
             {% elif paths.media_paths|select('in', item.vol_path)|list|length == 0 and paths.downloads_paths|select('in', item.vol_path)|list|length == 0 %}
       # {{ item.desc }}
-      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
+      - ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
             {% elif checks.has_media and checks.has_downloads and not checks.path_added %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
+      - ${DOCKERSTORAGEPATH:-/volume1/data}:${DOCKERMOUNTPATH:-/mnt/data}
                 {% set checks.path_added = true %}
             {% elif checks.has_downloads and not checks.has_media and not checks.path_added %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
+      - ${DOCKERSTORAGEPATH:-/volume1/data}/downloads:${DOCKERMOUNTPATH:-/mnt/data}/downloads
                 {% set checks.path_added = true %}
             {% elif checks.has_media and not checks.has_downloads and not checks.path_added %}
                 {% set checks.path_added = true %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
+      - ${DOCKERSTORAGEPATH:-/volume1/data}/media:${DOCKERMOUNTPATH:-/mnt/data}/media
             {% endif %}
       {% endfor %}
 {% endif %}
@@ -114,18 +114,18 @@ services:
       # {{ item.desc }}
       # - {{ item.vol_path }}:{{ item.vol_path }}
             {% elif item.vol_path == '/config' %}
-      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}:{{ item.vol_path }}
+      - ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}${DOCKERCONFIGDIR:-}:{{ item.vol_path }}
             {% elif paths.media_paths|select('in', item.vol_path)|list|length == 0 and paths.downloads_paths|select('in', item.vol_path)|list|length == 0 %}
       # {{ item.desc }}
-      - ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
+      - ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
             {% elif checks.has_media and checks.has_downloads and not checks.path_added %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}:/mnt/data
+      - ${DOCKERSTORAGEPATH:-/volume1/data}:${DOCKERMOUNTPATH:-/mnt/data}
                 {% set checks.path_added = true %}
             {% elif checks.has_downloads and not checks.path_added %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}/downloads:/mnt/data/downloads
+      - ${DOCKERSTORAGEPATH:-/volume1/data}/downloads:${DOCKERMOUNTPATH:-/mnt/data}/downloads
                 {% set checks.path_added = true %}
             {% elif checks.has_media and not checks.path_added %}
-      - ${DOCKERSTORAGEDIR:-/volume1/data}/media:/mnt/data/media
+      - ${DOCKERSTORAGEPATH:-/volume1/data}/media:${DOCKERMOUNTPATH:-/mnt/data}/media
                 {% set checks.path_added = true %}
             {% endif %}
       {% endfor %}

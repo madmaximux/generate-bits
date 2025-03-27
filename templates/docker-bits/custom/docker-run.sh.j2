@@ -62,7 +62,7 @@ docker run -d \
 {% if item.vol_path in exc_param_volumes %}
   -v {{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
 {% else %}
-  -v ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
+  -v ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -71,7 +71,7 @@ docker run -d \
 {% if item.vol_path in exc_param_volumes %}
   -v {{ item.vol_path }}:{{ item.vol_path }} `# optional` `# {{ item.desc }}` \
 {% else %}
-  -v ${DOCKERCONFIGDIR:-/volume1/docker/appdata}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# optional` `# {{ item.desc }}` \
+  -v ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# optional` `# {{ item.desc }}` \
 {% endif %}
 {% endfor %}
 {% endif %}

@@ -17,7 +17,7 @@
 			{%- if project_vars.param_usage_include_vols %}
 				{%- for item in project_vars.param_volumes %}
 					{%- if item.vol_path not in common.exc_param_volumes -%}
-						mkdir -p /volume1/docker/appdata{{ project_vars.project_name}}{{ item.vol_path }}
+						mkdir -p /volume1/docker/{{ project_vars.project_name}}{{ item.vol_path }}
 					{%- endif -%}
 					{{ "<br>" if not loop.last or project_vars.opt_param_usage_include_vols else "" }}
 				{%- endfor %}

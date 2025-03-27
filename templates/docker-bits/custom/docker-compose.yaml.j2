@@ -94,8 +94,8 @@ services:
       - ${DOCKERSTORAGEPATH:-/volume1/data}/downloads:${DOCKERMOUNTPATH:-/mnt/data}/downloads
                 {% set checks.path_added = true %}
             {% elif checks.has_media and not checks.has_downloads and not checks.path_added %}
-                {% set checks.path_added = true %}
       - ${DOCKERSTORAGEPATH:-/volume1/data}/media:${DOCKERMOUNTPATH:-/mnt/data}/media
+                {% set checks.path_added = true %}
             {% endif %}
       {% endfor %}
 {% endif %}

@@ -89,51 +89,57 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Restore Docker image cache
-        uses: actions/cache@v3
-        with:
-          path: ./docker-cache
-          key: ${{ runner.os }}-docker-images-${{ matrix.service }}
-
-      - name: Pre-pull and cache Docker image with digest check
+      - name: Retrieve Docker Image Digest for Cache Key
         run: |
           set -e
-          mkdir -p docker-cache
           SERVICE="${{ matrix.service }}"
           IMAGE="lscr.io/linuxserver/${SERVICE}:latest"
-      
+
           # Get digest for amd64 architecture and shorten to 12 chars
           latest_digest=$(docker manifest inspect "$IMAGE" | \
             jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest' | \
             head -n 1 | sed 's/sha256://' | cut -c1-12)
-      
-          # Fallback if manifest inspect fails
+
           if [ -z "$latest_digest" ] || [ "$latest_digest" = "null" ]; then
-            echo "Failed to get digest via manifest. Pulling image normally..."
-            docker pull "$IMAGE"
-            latest_digest=$(docker image inspect "$IMAGE" --format '{{index .RepoDigests 0}}' | \
-              awk -F@ '{print $2}' | sed 's/sha256://' | cut -c1-12)
+            echo "Failed to retrieve digest. Exiting..."
+            exit 1
           fi
-      
-          # Look for cached file with shortened digest
-          cached_file=$(find docker-cache -maxdepth 1 -type f -name "${SERVICE}-${latest_digest}*.tar" | head -n 1)
-      
-          if [ -n "$cached_file" ]; then
-            echo "Using existing cache: $cached_file"
-            docker load -i "$cached_file"
+
+          echo "Latest digest for $SERVICE is $latest_digest"
+          
+          # Save digest to environment variable for cache key usage
+          echo "DIGEST=$latest_digest" >> $GITHUB_ENV
+
+      - name: Restore Docker image cache using digest-based key
+        uses: actions/cache@v3
+        with:
+          path: ./docker-cache
+          key: ${{ runner.os }}-docker-images-${{ matrix.service }}-${{ env.DIGEST }}
+          restore-keys: |
+            ${{ runner.os }}-docker-images-${{ matrix.service }}
+
+      - name: Pre-pull and save Docker image if not cached
+        run: |
+          mkdir -p docker-cache
+          SERVICE="${{ matrix.service }}"
+          IMAGE="lscr.io/linuxserver/${SERVICE}:latest"
+          
+          TARBALL="docker-cache/${SERVICE}-${DIGEST}.tar"
+
+          if [ -f "$TARBALL" ]; then
+            echo "Loading cached image from $TARBALL"
+            docker load -i "$TARBALL"
           else
-            echo "No valid cached image found; pulling new image..."
+            echo "Pulling image $IMAGE"
             docker pull "$IMAGE"
             
-            # Create new tarball with shortened digest
-            new_file="docker-cache/${SERVICE}-${latest_digest}.tar"
-            echo "Saving new image to $new_file"
-            docker save "$IMAGE" -o "$new_file"
+            echo "Saving image to $TARBALL"
+            docker save "$IMAGE" -o "$TARBALL"
             
-            # Clean up old cached files for this service
-            find docker-cache -maxdepth 1 -type f -name "${SERVICE}-*.tar" ! -name "${SERVICE}-${latest_digest}*" -exec rm {} +
+            # Clean up old cached files for this service (optional)
+            find docker-cache -maxdepth 1 -type f -name "${SERVICE}-*.tar" ! -name "${SERVICE}-${DIGEST}*.tar" -exec rm {} +
+            echo "Removed old cached images for $SERVICE"
           fi
-        shell: bash
 
       - name: Start Docker Compose Services
         run: docker-compose -f ${SOURCE_PATH}/custom/${{ matrix.service }}/docker-compose.yaml up -d

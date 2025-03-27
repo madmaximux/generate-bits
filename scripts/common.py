@@ -94,7 +94,7 @@ def get_project_vars(project_name, init_vars, mode):
         if not any(row["env_var"] == "UMASK" for row in project_vars["common_param_env_vars"]):
             umask_env_var = {
                 "env_var": "UMASK",
-                "env_value": "${UMASK:-002}",
+                "env_value": "002",
                 "desc": "for UMASK"
             }
             # Find TZ and insert UMASK before it

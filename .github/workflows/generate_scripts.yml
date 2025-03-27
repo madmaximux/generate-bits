@@ -95,20 +95,43 @@ jobs:
           path: ./docker-cache
           key: ${{ runner.os }}-docker-images-${{ matrix.service }}
 
-      - name: Pre-pull and cache Docker image
+      - name: Pre-pull and cache Docker image with digest check
         run: |
+          set -e
           mkdir -p docker-cache
           SERVICE="${{ matrix.service }}"
           IMAGE="lscr.io/linuxserver/${SERVICE}:latest"
-          TARBALL="docker-cache/${SERVICE}.tar"
-          if [ -f "$TARBALL" ]; then
-            echo "Loading cached image from $TARBALL"
-            docker load -i "$TARBALL"
-          else
-            echo "Pulling image $IMAGE"
+      
+          # Get digest for amd64 architecture and shorten to 12 chars
+          latest_digest=$(docker manifest inspect "$IMAGE" | \
+            jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest' | \
+            head -n 1 | sed 's/sha256://' | cut -c1-12)
+      
+          # Fallback if manifest inspect fails
+          if [ -z "$latest_digest" ] || [ "$latest_digest" = "null" ]; then
+            echo "Failed to get digest via manifest. Pulling image normally..."
             docker pull "$IMAGE"
-            echo "Saving image to $TARBALL"
-            docker save "$IMAGE" -o "$TARBALL"
+            latest_digest=$(docker image inspect "$IMAGE" --format '{{index .RepoDigests 0}}' | \
+              awk -F@ '{print $2}' | sed 's/sha256://' | cut -c1-12)
+          fi
+      
+          # Look for cached file with shortened digest
+          cached_file=$(find docker-cache -maxdepth 1 -type f -name "${SERVICE}-${latest_digest}*.tar" | head -n 1)
+      
+          if [ -n "$cached_file" ]; then
+            echo "Using existing cache: $cached_file"
+            docker load -i "$cached_file"
+          else
+            echo "No valid cached image found; pulling new image..."
+            docker pull "$IMAGE"
+            
+            # Create new tarball with shortened digest
+            new_file="docker-cache/${SERVICE}-${latest_digest}.tar"
+            echo "Saving new image to $new_file"
+            docker save "$IMAGE" -o "$new_file"
+            
+            # Clean up old cached files for this service
+            find docker-cache -maxdepth 1 -type f -name "${SERVICE}-*.tar" ! -name "${SERVICE}-${latest_digest}*" -exec rm {} +
           fi
         shell: bash
 

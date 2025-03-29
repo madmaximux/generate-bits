@@ -53,10 +53,8 @@ jobs:
     - name: Execute Python scripts
       run: |
         set -e
-        echo "Generating standard templates..."
-        python scripts/portainer-templates/generate_templates_standard.py
-        echo "Generating custom templates..."
-        python scripts/portainer-templates/generate_templates_custom.py
+        echo "Generating templates..."
+        python scripts/portainer-templates/generate_templates.py
     
     - name: Pushes output to destination repository
       if: success()

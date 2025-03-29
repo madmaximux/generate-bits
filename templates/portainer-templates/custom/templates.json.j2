@@ -3,7 +3,7 @@
 	"version": "3",
 	"templates": [
 	{% for project in projects %}
-		{% set project_vars = get_project_vars(project.name, init_vars, mode="templates") %}
+		{% set project_vars = get_project_vars(project.name, init_vars, mode="templates", template_type="custom") %}
 		{% if project_vars.project_name != "name" %}
 		{
 			"id": {{ loop.index }},
@@ -17,7 +17,17 @@
 			{%- if project_vars.param_usage_include_vols %}
 				{%- for item in project_vars.param_volumes %}
 					{%- if item.vol_path not in common.exc_param_volumes -%}
-						mkdir -p /volume1/docker/{{ project_vars.project_name}}{{ item.vol_path }}
+						{%- if item.vol_path == "/config" -%}
+						mkdir -p {{ common.docker_config_path }}/{{ project_vars.project_name}}{{ common.docker_config_dir }}
+						{%- elif item.vol_path == "/data" -%}
+						mkdir -p {{ common.docker_storage_path }}
+						{%- elif item.vol_path == "/data/media" -%}
+						mkdir -p {{ common.docker_storage_path }}/media
+						{%- elif item.vol_path == "/data/downloads" -%}
+						mkdir -p {{ common.docker_storage_path }}/downloads
+						{%- else -%}
+						mkdir -p {{ common.docker_config_path }}/{{ project_vars.project_name}}{{ item.vol_path }}
+						{%- endif -%}
 					{%- endif -%}
 					{{ "<br>" if not loop.last or project_vars.opt_param_usage_include_vols else "" }}
 				{%- endfor %}
@@ -25,7 +35,17 @@
 			{%- if project_vars.opt_param_usage_include_vols %}
 				{%- for item in project_vars.opt_param_volumes %}
 					{%- if item.vol_path not in common.exc_param_volumes -%}
-						mkdir -p /volume1/docker/{{ project_vars.project_name}}{{ item.vol_path }}
+						{%- if item.vol_path == "/config" -%}
+						mkdir -p {{ common.docker_config_path }}/{{ project_vars.project_name}}{{ common.docker_config_dir }}
+						{%- elif item.vol_path == "/data" -%}
+						mkdir -p {{ common.docker_storage_path }}
+						{%- elif item.vol_path == "/data/media" -%}
+						mkdir -p {{ common.docker_storage_path }}/media
+						{%- elif item.vol_path == "/data/downloads" -%}
+						mkdir -p {{ common.docker_storage_path }}/downloads
+						{%- else -%}
+						mkdir -p {{ common.docker_config_path }}/{{ project_vars.project_name}}{{ item.vol_path }}
+						{%- endif -%}
 					{%- endif -%}
 					{{ "<br>" if not loop.last else "" }}
 				{%- endfor %}
@@ -119,11 +139,24 @@
 			{% if project_vars.param_usage_include_vols %}
 				{% for item in project_vars.param_volumes %}
 			{
-				"container": "{{ item.vol_path }}",
 				{% if item.vol_path in common.exc_param_volumes %}
-				"bind": "{{ item.vol_path }}"
+					"container": "{{ item.vol_path }}",
+					"bind": "{{ item.vol_path }}"
+				{% elif item.vol_path == "/config" %}
+					"container": "{{ item.vol_path }}",
+					"bind": "{{ common.docker_config_path }}/{{ project_vars.project_name}}{{ common.docker_config_dir }}"
+				{% elif item.vol_path == "/data" %}
+					"container": "{{ common.docker_mount_path }}",
+					"bind": "{{ common.docker_storage_path }}"
+				{% elif item.vol_path == "/data/media" %}
+					"container": "{{ common.docker_mount_path }}/media",
+					"bind": "{{ common.docker_storage_path }}/media"
+				{% elif item.vol_path == "/data/downloads" %}
+					"container": "{{ common.docker_mount_path }}/downloads",
+					"bind": "{{ common.docker_storage_path }}/downloads"
 				{% else %}
-				"bind": "/volume1/docker/{{ project_vars.project_name}}{{ item.vol_path }}"
+					"container": "{{ item.vol_path }}",
+					"bind": "{{ common.docker_config_path }}/{{ project_vars.project_name}}{{ item.vol_path }}"
 				{% endif %}
 			}{{ "," if not loop.last or project_vars.opt_param_usage_include_vols else "" }}
 				{% endfor %}
@@ -131,11 +164,24 @@
 			{% if project_vars.opt_param_usage_include_vols %}
 				{% for item in project_vars.opt_param_volumes %}
 			{
-				"container": "{{ item.vol_path }}",
 				{% if item.vol_path in common.exc_param_volumes  %}
-				"bind": "{{ item.vol_path }}"
+					"container": "{{ item.vol_path }}",
+					"bind": "{{ item.vol_path }}"
+				{% elif item.vol_path == "/config" %}
+					"container": "{{ item.vol_path }}",
+					"bind": "{{ common.docker_config_path }}/{{ project_vars.project_name}}{{ common.docker_config_dir }}"
+				{% elif item.vol_path == "/data" %}
+					"container": "{{ common.docker_mount_path }}",
+					"bind": "{{ common.docker_storage_path }}"
+				{% elif item.vol_path == "/data/media" %}
+					"container": "{{ common.docker_mount_path }}/media",
+					"bind": "{{ common.docker_storage_path }}/media"
+				{% elif item.vol_path == "/data/downloads" %}
+					"container": "{{ common.docker_mount_path }}/downloads",
+					"11bbindind": "{{ common.docker_storage_path }}/downloads"
 				{% else %}
-				"bind": "/volume1/docker/{{ project_vars.project_name}}{{ item.vol_path }}"
+					"container": "{{ item.vol_path }}",
+					"bind": "{{ common.docker_config_path }}/{{ project_vars.project_name}}{{ item.vol_path }}"
 				{% endif %}
 			}{{ "," if not loop.last else "" }}
 				{% endfor %}

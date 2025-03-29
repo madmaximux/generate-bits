@@ -1,1 +1,8 @@
+{# volumes #}
 {% set exc_param_volumes = ["/dev/input", "/lib/modules", "/opt/vc/lib", "/run/udev:ro", "/run/udev/data", "/var/log", "/var/run/docker.sock"]  %}
+
+{# path #}
+{% set docker_config_path = "/volume1/docker/appdata" %}
+{% set docker_config_dir = "" %}
+{% set docker_storage_path = "/volume1/data" %}
+{% set docker_mount_path = "/mnt/data" %}

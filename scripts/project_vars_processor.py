@@ -13,9 +13,10 @@ def process_project_vars(project_vars, project_name, mode, template_type):
     Returns:
         dict: The processed project_vars dictionary.
     """
+
     if project_name is None:
         project_name = project_vars.get("project_name", "")
-    
+
     # --- Common overrides for all modes ---
     if "project_blurb" in project_vars:
         blurb = project_vars["project_blurb"]
@@ -34,13 +35,13 @@ def process_project_vars(project_vars, project_name, mode, template_type):
 
     if project_vars.get("project_logo") == "http://www.logo.com/logo.png":
         project_vars["project_logo"] = ""
-    
+
     if project_name.lower() == "plex" and "param_ports" in project_vars:
         project_vars["param_ports"] = [row for row in project_vars["param_ports"] if row.get("external_port") != "80"]
-    
+
     if project_vars.get("full_custom_readme", ""):
         project_vars["project_blurb"] = "# This container needs special attention. Please check https://hub.docker.com/r/linuxserver/{} for details.".format(project_vars.get("project_name", ""))
-    
+
     # --- Process based on template_type ---
 
     # --- Process standard  ---
@@ -241,6 +242,13 @@ def process_project_vars(project_vars, project_name, mode, template_type):
                     else:
                         project_vars.setdefault("common_param_env_vars", []).append(umask_env_var)
 
+            # --- tautulli --- #
+            if project_name.lower() == "tautulli":
+                project_vars["custom_opt_param_usage_include_vols"] = True
+                project_vars["custom_opt_param_volumes"] = [
+                    {"vol_path": "/plex_logs", "vol_host_path": "${DOCKERCONFIGPATH:-/volume1/docker/appdata}/plex/Library/Application Support/Plex Media Server/Logs", "desc": "Plex logs"}
+                ]
+                
         # --- Process custom templates ---
         elif mode == "templates":
 

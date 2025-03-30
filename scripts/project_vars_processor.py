@@ -164,6 +164,8 @@ def process_project_vars(project_vars, project_name, mode, template_type):
                 param_vol_paths = {row['vol_path'] for row in project_vars["param_volumes"]}
                 # Remove duplicates from opt_param_volumes that are already in param_volumes
                 project_vars["opt_param_volumes"] = [row for row in opt_param_volumes if row['vol_path'] not in param_vol_paths]
+                if len(project_vars["opt_param_volumes"]) == 0:
+                    project_vars["opt_param_usage_include_vols"] = False
 
         # --- Plex --- #
         if project_name.lower() == "plex":

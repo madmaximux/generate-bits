@@ -133,7 +133,7 @@
 			{% if project_vars.param_usage_include_ports or project_vars.opt_param_usage_include_ports %}
 			],
 			{% endif %}
-			{% if project_vars.param_usage_include_vols or project_vars.opt_param_usage_include_vols %}
+			{% if project_vars.param_usage_include_vols or project_vars.opt_param_usage_include_vols or project_vars.custom_opt_param_usage_include_vols %}
 			"volumes": [
 			{% endif %}
 			{% if project_vars.param_usage_include_vols %}
@@ -158,7 +158,7 @@
 					"container": "{{ item.vol_path }}",
 					"bind": "{{ common.docker_config_path }}/{{ project_vars.project_name}}{{ item.vol_path }}"
 				{% endif %}
-			}{{ "," if not loop.last or project_vars.opt_param_usage_include_vols else "" }}
+			}{{ "," if (not loop.last) or project_vars.opt_param_usage_include_vols or project_vars.custom_opt_param_usage_include_vols else "" }}
 				{% endfor %}
 			{% endif %}
 			{% if project_vars.opt_param_usage_include_vols %}
@@ -178,15 +178,24 @@
 					"bind": "{{ common.docker_storage_path }}/media"
 				{% elif item.vol_path == "/data/downloads" %}
 					"container": "{{ common.docker_mount_path }}/downloads",
-					"11bbindind": "{{ common.docker_storage_path }}/downloads"
+					"bind": "{{ common.docker_storage_path }}/downloads"
 				{% else %}
 					"container": "{{ item.vol_path }}",
 					"bind": "{{ common.docker_config_path }}/{{ project_vars.project_name}}{{ item.vol_path }}"
 				{% endif %}
-			}{{ "," if not loop.last else "" }}
+			}{{ "," if (not loop.last) or project_vars.custom_opt_param_usage_include_vols else "" }}
 				{% endfor %}
 			{% endif %}
-			{% if project_vars.param_usage_include_vols or project_vars.opt_param_usage_include_vols %}
+			{% if project_vars.custom_opt_param_usage_include_vols %}
+				{% for item in project_vars.custom_opt_param_volumes %}
+			{
+				"container": "{{ item.vol_path }}",
+				"bind": "{{ item.vol_host_path }}"
+
+			}{{ "," if (not loop.last) else "" }}
+				{% endfor %}
+			{% endif %}
+			{% if project_vars.param_usage_include_vols or project_vars.opt_param_usage_include_vols or project_vars.custom_opt_param_usage_include_vols %}
 			],
 			{% endif %}
 			"restart_policy": "unless-stopped"

@@ -269,6 +269,11 @@ def process_project_vars(project_vars, project_name, mode, template_type):
                     else:
                         project_vars.setdefault("common_param_env_vars", []).append(umask_env_var)
 
-
+            # --- tautulli --- #
+            if project_name.lower() == "tautulli":
+                project_vars["custom_opt_param_usage_include_vols"] = True
+                project_vars["custom_opt_param_volumes"] = [
+                    {"vol_path": "/plex_logs", "vol_host_path": "/volume1/docker/appdata/plex/Library/Application Support/Plex Media Server/Logs", "desc": "Plex logs"}
+                ]
 
     return project_vars

@@ -68,6 +68,7 @@ jobs:
     strategy:
       matrix:
         service: [plex, sonarr]
+        template: [standard, custom]
 
     steps:
       - name: Checkout Repository
@@ -140,7 +141,7 @@ jobs:
           fi
 
       - name: Start Docker Compose Services
-        run: docker-compose -f ${SOURCE_PATH}/custom/${{ matrix.service }}/docker-compose.yaml up -d
+        run: docker-compose -f ${SOURCE_PATH}/${{ matrix.template }}/${{ matrix.service }}/docker-compose.yaml up -d
 
       - name: Wait for Containers to Start
         run: sleep 5
@@ -149,7 +150,7 @@ jobs:
         run: docker ps
 
       - name: Stop and Remove Containers
-        run: docker-compose -f ${SOURCE_PATH}/custom/${{ matrix.service }}/docker-compose.yaml down
+        run: docker-compose -f ${SOURCE_PATH}/${{ matrix.template }}/${{ matrix.service }}/docker-compose.yaml down
 
   deploy:
     name: Push Output to Destination Repository

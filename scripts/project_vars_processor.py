@@ -36,9 +36,6 @@ def process_project_vars(project_vars, project_name, mode, template_type):
     if project_vars.get("project_logo") == "http://www.logo.com/logo.png":
         project_vars["project_logo"] = ""
 
-    if project_name.lower() == "plex" and "param_ports" in project_vars:
-        project_vars["param_ports"] = [row for row in project_vars["param_ports"] if row.get("external_port") != "80"]
-
     if project_vars.get("full_custom_readme", ""):
         project_vars["project_blurb"] = "# This container needs special attention. Please check https://hub.docker.com/r/linuxserver/{} for details.".format(project_vars.get("project_name", ""))
 
@@ -171,6 +168,8 @@ def process_project_vars(project_vars, project_name, mode, template_type):
         if project_name.lower() == "plex":
 
             # --- Plex ports --- #
+            project_vars["param_ports"] = [row for row in project_vars["param_ports"] if row.get("external_port") != "80"]
+
             project_vars["param_usage_include_ports"] = True
             project_vars["param_ports"] = [
                 {"external_port": "32400", "internal_port": "32400/tcp", "port_desc": "Plex Media Server"}

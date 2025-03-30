@@ -28,6 +28,7 @@ and get_project_vars) and then passes these values to the template generators.
 import sys
 import os
 import logging
+from textwrap import dedent
 
 from base_script_generator import BaseScriptGenerator
 
@@ -78,13 +79,13 @@ def main():
         mode = "scripts"
         template_types = ["standard", "custom"]
         docker_env_content = {
-            "standard": '''
+            "standard": dedent('''\
             # BASEDIR=/volume1/docker
             # PUID=1024
             # PGID=100
             # TZ=America/Chicago
-            ''',
-            "custom": '''
+            '''),
+            "custom": dedent('''\
             # ## Global Settings
             # PUID=1024
             # PGID=100
@@ -98,7 +99,7 @@ def main():
             # DOCKERCONFIGDIR=""
             # DOCKERSTORAGEPATH=/volume1/data
             # DOCKERMOUNTPATH=/mnt/data
-            '''
+            ''')
         }
         for template_type in template_types:
             generate_scripts_for(mode, template_type, docker_env_content[template_type], init_vars, project_list, project_vars)

@@ -100,39 +100,26 @@ def process_project_vars(project_vars, project_name, mode, template_type):
         # --- param_volumes --- #
         if project_vars["param_usage_include_vols"] and "param_volumes" in project_vars:
 
-            # Initialize flags
-            has_media_paths = False
-            has_download_paths = False
-
-            media_keywords = ["movies", "tv", "music"]
+            media_keywords = ["movies", "tv", "music", "playlists", "podcasts", "media"]
             download_keywords = ["downloads"]
 
             # Extract param_volumes from project_vars
             param_volumes = project_vars["param_volumes"]
 
-            # Check if any vol_path contains 'movies', 'tv', or 'music'
-            has_media_paths = any(
-                any(keyword in row['vol_path'] for keyword in media_keywords) for row in param_volumes
-                )
-
-            # Check if any vol_path contains 'downloads'
-            has_download_paths = any(
-                any(keyword in row['vol_path'] for keyword in download_keywords) for row in param_volumes
-                )
-
             # Process each row in param_volumes
             for row in param_volumes:
 
+                vol_path = row.get('vol_path', '')
                 # Modify rows based on conditions
-                if has_media_paths and has_download_paths:
+                if any(keyword in vol_path for keyword in media_keywords + download_keywords):
                     row['vol_path'] = '/data'
                     row['vol_host_path'] = '/volume1/data'
                     row['desc'] = 'Location of data on disk'
-                elif has_media_paths and not has_download_paths:
+                if any(keyword in vol_path for keyword in media_keywords) and not any(keyword in vol_path for keyword in download_keywords):                    
                     row['vol_path'] = '/data/media'
                     row['vol_host_path'] = '/volume1/data/media'
                     row['desc'] = 'Location of media on disk'
-                elif has_download_paths and not has_media_paths:
+                elif any(keyword in vol_path for keyword in download_keywords) and not any(keyword in vol_path for keyword in media_keywords):
                     row['vol_path'] = '/data/downloads'
                     row['vol_host_path'] = '/volume1/data/downloads'
                     row['desc'] = 'Location of downloads on disk'
@@ -144,45 +131,39 @@ def process_project_vars(project_vars, project_name, mode, template_type):
         # --- opt_param_volumes --- #
         if project_vars["opt_param_usage_include_vols"] and "opt_param_volumes" in project_vars:
 
-            # Initialize flags
-            has_media_paths = False
-            has_download_paths = False
-
-            media_keywords = ["movies", "tv", "music"]
+            media_keywords = ["movies", "tv", "music", "playlists", "podcasts", "media"]
             download_keywords = ["downloads"]
 
             # Extract opt_param_volumes from project_vars
             opt_param_volumes = project_vars["opt_param_volumes"]
 
-            # Check if any vol_path contains 'movies', 'tv', or 'music'
-            has_media_paths = any(
-                any(keyword in row['vol_path'] for keyword in media_keywords) for row in opt_param_volumes
-                )
-
-            # Check if any vol_path contains 'downloads'
-            has_download_paths = any(
-                any(keyword in row['vol_path'] for keyword in download_keywords) for row in opt_param_volumes
-                )
-
             # Process each row in opt_param_volumes
             for row in opt_param_volumes:
 
+                vol_path = row.get('vol_path', '')
                 # Modify rows based on conditions
-                if has_media_paths and has_download_paths:
+                if any(keyword in vol_path for keyword in media_keywords + download_keywords):
                     row['vol_path'] = '/data'
                     row['vol_host_path'] = '/volume1/data'
                     row['desc'] = 'Location of data on disk'
-                elif has_media_paths and not has_download_paths:
+                if any(keyword in vol_path for keyword in media_keywords) and not any(keyword in vol_path for keyword in download_keywords):                    
                     row['vol_path'] = '/data/media'
                     row['vol_host_path'] = '/volume1/data/media'
                     row['desc'] = 'Location of media on disk'
-                elif has_download_paths and not has_media_paths:
+                elif any(keyword in vol_path for keyword in download_keywords) and not any(keyword in vol_path for keyword in media_keywords):
                     row['vol_path'] = '/data/downloads'
                     row['vol_host_path'] = '/volume1/data/downloads'
                     row['desc'] = 'Location of downloads on disk'
 
             # Remove duplicates based on 'vol_path'
             project_vars["opt_param_volumes"] = list({row['vol_path']: row for row in opt_param_volumes}.values())
+
+            # Removing duplicates across all volumes
+            if project_vars["param_usage_include_vols"] and project_vars["opt_param_usage_include_vols"]:
+                # Create a set of 'vol_path' values from param_volumes
+                param_vol_paths = {row['vol_path'] for row in project_vars["param_volumes"]}
+                # Remove duplicates from opt_param_volumes that are already in param_volumes
+                project_vars["opt_param_volumes"] = [row for row in opt_param_volumes if row['vol_path'] not in param_vol_paths]
 
         # --- Plex --- #
         if project_name.lower() == "plex":

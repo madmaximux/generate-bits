@@ -2,8 +2,8 @@
 ln -s ../docker-env.cfg ./.env
 . ./.env
 mkdir -p ${DOCKERCOMPOSEPATH:-/volume1/docker/projects}/{{ project_vars.project_name }}${DOCKERCOMPOSEDIRSUFFIX:--compose}
-cp -n ../docker-env.cfg ${DOCKERCOMPOSEPATH:-/volume1/docker/projects}/{{ project_vars.project_name }}${DOCKERCOMPOSEDIRSUFFIX:-compose}/.env
-cp -n ./docker-compose.yaml ${DOCKERCOMPOSEPATH:-/volume1/docker/projects}/{{ project_vars.project_name }}${DOCKERCOMPOSEDIRSUFFIX:-compose}/${DOCKERCOMPOSEFILE:-compose.yaml}
+cp -n ../docker-env.cfg ${DOCKERCOMPOSEPATH:-/volume1/docker/projects}/{{ project_vars.project_name }}${DOCKERCOMPOSEDIRSUFFIX:--compose}/.env
+cp -n ./docker-compose.yaml ${DOCKERCOMPOSEPATH:-/volume1/docker/projects}/{{ project_vars.project_name }}${DOCKERCOMPOSEDIRSUFFIX:--compose}/${DOCKERCOMPOSEFILE:-compose.yaml}
 {% if project_vars.param_usage_include_vols %}
     {% for item in project_vars.param_volumes %}
         {% if item.vol_path not in common.exc_param_volumes %}

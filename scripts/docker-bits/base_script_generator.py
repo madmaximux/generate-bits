@@ -85,7 +85,6 @@ class BaseScriptGenerator:
                 if local_project_vars.get("project_name") == "name":
                     continue
 
-
                 out_dir = os.path.join(self.out_basedir_fullpath, project["name"])
                 os.makedirs(out_dir, exist_ok=True)
 
@@ -103,6 +102,12 @@ class BaseScriptGenerator:
                 template_run_once = self.safe_get_template("run-once.sh.j2")
                 with open(os.path.join(out_dir, "run-once.sh"), "w") as out_file:
                     out_file.write(template_run_once.render(project_vars=local_project_vars))
+
+                # Generate install.sh (custom)
+                if self.template_type == "custom":
+                    template_install = self.safe_get_template("install.sh.j2")
+                    with open(os.path.join(out_dir, "install.sh"), "w") as out_file:
+                        out_file.write(template_install.render(project_vars=local_project_vars))
 
         except Exception as e:
             logger.error(f"Error during script generation: {e}")

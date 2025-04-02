@@ -1,0 +1,36 @@
+{% import "common.j2" as common %}
+ln -s ../docker-env.cfg ./.env
+. ./.env
+mkdir -p ${DOCKERCOMPOSEPATH:-/volume1/docker/projects}/{{ project_vars.project_name }}${DOCKERCOMPOSEDIRSUFFIX:--compose}
+cp -n ../docker-env.cfg ${DOCKERCOMPOSEPATH:-/volume1/docker/projects}/{{ project_vars.project_name }}${DOCKERCOMPOSEDIRSUFFIX:-compose}/.env
+cp -n ./docker-compose.yaml ${DOCKERCOMPOSEPATH:-/volume1/docker/projects}/{{ project_vars.project_name }}${DOCKERCOMPOSEDIRSUFFIX:-compose}/${DOCKERCOMPOSEFILE:-compose.yaml}
+{% if project_vars.param_usage_include_vols %}
+    {% for item in project_vars.param_volumes %}
+        {% if item.vol_path not in common.exc_param_volumes %}
+            {% if item.vol_path == '/config' %}
+mkdir -p ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}${DOCKERCONFIGDIR:-}
+            {% elif item.vol_path == "/data" %}
+mkdir -p ${DOCKERSTORAGEPATH:-/volume1/data}
+            {% elif item.vol_path == "/data/media" %}
+mkdir -p ${DOCKERSTORAGEPATH:-/volume1/data}/media
+            {% elif item.vol_path == "/data/downloads" %}
+mkdir -p ${DOCKERSTORAGEPATH:-/volume1/data}/downloads
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% if project_vars.opt_param_usage_include_vols %}
+    {% for item in project_vars.opt_param_volumes %}
+        {% if item.vol_path not in common.exc_param_volumes %}
+            {% if item.vol_path == '/config' %}
+mkdir -p ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}${DOCKERCONFIGDIR:-}
+            {% elif item.vol_path == "/data" %}
+mkdir -p ${DOCKERSTORAGEPATH:-/volume1/data}
+            {% elif item.vol_path == "/data/media" %}
+mkdir -p ${DOCKERSTORAGEPATH:-/volume1/data}/media
+            {% elif item.vol_path == "/data/downloads" %}
+mkdir -p ${DOCKERSTORAGEPATH:-/volume1/data}/downloads
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endif %}

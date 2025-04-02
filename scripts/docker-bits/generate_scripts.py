@@ -94,7 +94,9 @@ def main():
             # NETWORK_NAME=synobridge
 
             # ## Paths
-            # DOCKERCOMPOSEPATH=/volume1/docker/projects-compose
+            # DOCKERCOMPOSEPATH=/volume1/docker/projects
+            # DOCKERCOMPOSEDIRSUFFIX=-compose
+            # DOCKERCOMPOSEFILE=compose.yaml
             # DOCKERCONFIGPATH=/volume1/docker/appdata
             # DOCKERCONFIGDIR=""
             # DOCKERSTORAGEPATH=/volume1/data

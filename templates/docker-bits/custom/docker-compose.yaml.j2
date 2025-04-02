@@ -103,8 +103,8 @@ services:
             {% elif item.vol_path == "/data/downloads" %}
       - ${DOCKERSTORAGEPATH:-/volume1/data}/downloads:${DOCKERMOUNTPATH:-/mnt/data}/downloads
             {% else %}
-      # {{ item.desc }}
-      - ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
+      ## {{ item.desc }}
+      # - ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
             {% endif %}
       {% endfor %}
 {% endif %}

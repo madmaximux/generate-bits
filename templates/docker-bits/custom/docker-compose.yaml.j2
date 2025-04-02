@@ -47,7 +47,7 @@ services:
     {% endfor %}
 {% elif project_vars.common_param_env_vars_enabled == 'optional' %}
     {% for item in project_vars.common_param_env_vars %}
-      # # {{ item.desc }}
+      # {{ item.desc }}
       # - {{ item.env_var }}={{ item.env_value }} # optional
     {% endfor %}
 {% endif %}
@@ -103,7 +103,7 @@ services:
             {% elif item.vol_path == "/data/downloads" %}
       - ${DOCKERSTORAGEPATH:-/volume1/data}/downloads:${DOCKERMOUNTPATH:-/mnt/data}/downloads
             {% else %}
-      ## {{ item.desc }}
+      # {{ item.desc }}
       # - ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }}
             {% endif %}
       {% endfor %}
@@ -112,7 +112,7 @@ services:
 {# project_vars.custom_opt_param_volumes start #}
 {% if project_vars.custom_opt_param_volumes %}
       {% for item in project_vars.custom_opt_param_volumes %}
-      # # {{ item.desc }}
+      # {{ item.desc }}
       # - {{ item.vol_host_path }}:{{ item.vol_path }}
       {% endfor %}
 {% endif %}
@@ -130,14 +130,14 @@ services:
       # {{ item.port_desc }}
       - {{ item.external_port }}:{{ item.internal_port }}
         {% else %}
-      # # {{ item.port_desc }}
+      # {{ item.port_desc }}
       # - {{ item.external_port }}:{{ item.internal_port }}
         {% endif %}
     {% endfor %}
 {% endif %}
 {% if project_vars.opt_param_usage_include_ports %}
 {% for item in project_vars.opt_param_ports %}
-      # # {{ item.port_desc }}
+      # {{ item.port_desc }}
       # - {{ item.external_port }}:{{ item.internal_port }} # optional
 {% endfor %}
 {% endif %}
@@ -163,7 +163,7 @@ services:
 {% endif %}
 {% if project_vars.opt_param_device_map %}
     {% for item in project_vars.opt_param_devices %}
-      # # {{ item.desc }}
+      # {{ item.desc }}
       # - {{ item.device_host_path }}:{{ item.device_path }} # optional
     {% endfor %}
 {% endif %}

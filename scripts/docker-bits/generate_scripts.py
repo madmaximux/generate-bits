@@ -86,7 +86,7 @@ def main():
             # TZ=America/Chicago
             '''),
             "custom": dedent('''\
-            # ## Global Settings
+            ## Global Settings
             # PUID=1024
             # PGID=100
             # UMASK=002
@@ -94,7 +94,7 @@ def main():
             # NETWORK_NAME=synobridge
             # NETWORK_EXTERNAL=true
 
-            # ## Paths
+            ## Paths
             # DOCKERCOMPOSEPATH=/volume1/docker/projects
             # DOCKERCOMPOSEDIRSUFFIX=-compose
             # DOCKERCOMPOSEFILE=compose.yaml

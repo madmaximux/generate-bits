@@ -92,6 +92,7 @@ def main():
             # UMASK=002
             # TZ=America/Chicago
             # NETWORK_NAME=synobridge
+            # NETWORK_EXTERNAL=true
 
             # ## Paths
             # DOCKERCOMPOSEPATH=/volume1/docker/projects

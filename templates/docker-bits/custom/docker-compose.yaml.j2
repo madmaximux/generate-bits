@@ -202,8 +202,10 @@ services:
 networks:
   default:
     name: ${NETWORK_NAME:-synobridge}
+    external: ${NETWORK_EXTERNAL:-false}
 {% else %}
 # networks:
 #  default:
 #    name: ${NETWORK_NAME:-synobridge}
+#    external: ${NETWORK_EXTERNAL:-false}
 {% endif %}

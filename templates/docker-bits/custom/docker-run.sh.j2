@@ -1,13 +1,13 @@
-{% from "common.j2" import exc_param_volumes %}
+{% import "common.j2" as common %}
 {{ project_vars.project_blurb }}
 . ./.env
 docker run -d \
   --name={{ project_vars.param_container_name }} \
-{# {% if project_vars.param_usage_include_hostname is sameas true %}
+{% if project_vars.param_usage_include_hostname is sameas true %}
   --hostname={{ project_vars.param_hostname }} `# {{ project_vars.param_hostname_desc }}` \
 {% elif project_vars.param_usage_include_hostname == 'optional' %}
     --hostname={{ project_vars.param_hostname }} `# optional` `# {{ project_vars.param_hostname_desc }}` \
-{% endif %} #}
+{% endif %}
 {% if project_vars.param_usage_include_net is sameas true %}
   --net={{ project_vars.param_net }} `# {{ project_vars.param_net_desc }}` \
 {% elif project_vars.param_usage_include_net == 'optional' %}
@@ -58,22 +58,39 @@ docker run -d \
 {% endfor %}
 {% endif %}
 {% if project_vars.param_usage_include_vols %}
-{% for item in project_vars.param_volumes %}
-{% if item.vol_path in exc_param_volumes %}
+      {% for item in project_vars.param_volumes %}
+            {% if item.vol_path in common.exc_param_volumes %}
   -v {{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
-{% else %}
-  -v ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
-{% endif %}
-{% endfor %}
+            {% elif item.vol_path == '/config' %}
+  -v ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}${DOCKERCONFIGDIR:-}:{{ item.vol_path }} \
+            {% elif item.vol_path == "/data" %}
+  -v ${DOCKERSTORAGEPATH:-/volume1/data}:${DOCKERMOUNTPATH:-/mnt/data} \
+            {% elif item.vol_path == "/data/media" %}
+  -v ${DOCKERSTORAGEPATH:-/volume1/data}/media:${DOCKERMOUNTPATH:-/mnt/data}/media \
+            {% elif item.vol_path == "/data/downloads" %}
+  -v ${DOCKERSTORAGEPATH:-/volume1/data}/downloads:${DOCKERMOUNTPATH:-/mnt/data}/downloads \
+            {% else %}
+  -v ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
+            {% endif %}
+      {% endfor %}
 {% endif %}
 {% if project_vars.opt_param_usage_include_vols %}
-{% for item in project_vars.opt_param_volumes %}
-{% if item.vol_path in exc_param_volumes %}
-  -v {{ item.vol_path }}:{{ item.vol_path }} `# optional` `# {{ item.desc }}` \
-{% else %}
-  -v ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name}}{{ item.vol_path }}:{{ item.vol_path }} `# optional` `# {{ item.desc }}` \
-{% endif %}
-{% endfor %}
+      {% for item in project_vars.opt_param_volumes %}
+            {% if item.vol_path in common.exc_param_volumes %}
+      # {{ item.desc }}
+  -v {{ item.vol_path }}:{{ item.vol_path }}  `# {{ item.desc }}` \
+            {% elif item.vol_path == '/config' %}
+  -v ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}${DOCKERCONFIGDIR:-}:{{ item.vol_path }} \
+            {% elif item.vol_path == "/data" %}
+  -v ${DOCKERSTORAGEPATH:-/volume1/data}:${DOCKERMOUNTPATH:-/mnt/data} \
+            {% elif item.vol_path == "/data/media" %}
+  -v ${DOCKERSTORAGEPATH:-/volume1/data}/media:${DOCKERMOUNTPATH:-/mnt/data}/media \
+            {% elif item.vol_path == "/data/downloads" %}
+  -v ${DOCKERSTORAGEPATH:-/volume1/data}/downloads:${DOCKERMOUNTPATH:-/mnt/data}/downloads \
+            {% else %}
+  -v ${DOCKERCONFIGPATH:-/volume1/docker/appdata}/{{ project_vars.project_name }}{{ item.vol_path }}:{{ item.vol_path }} `# {{ item.desc }}` \
+            {% endif %}
+      {% endfor %}
 {% endif %}
 {% if project_vars.param_device_map %}
 {% for item in project_vars.param_devices %}
